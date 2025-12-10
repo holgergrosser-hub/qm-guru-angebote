@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mail, FileText, CheckCircle, Loader, AlertCircle } from 'lucide-react';
 
 // Google Apps Script URL (aus Environment Variable)
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwYHfgEzP0JCfZLNoZ8tfC1uKkTDMRaIf6eP2g5Kt-ms5XK60qak4PvWekcc6WKxgHC/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBSfNlX9LyZD0SshbY1P0395UDdiSvKeytvl3ZtFUgD_JTG4btk-Yow3WpUeyL9Q9ZYQ/exec';
 
 export default function App() {
   const [formData, setFormData] = useState({
