@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBSfNlX9LyZD0SshbY1P0395UDdiSvKeytvl3ZtFUgD_JTG4btk-Yow3WpUeyL9Q9ZYQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIow_SGjG8lAbTeBvR-KPGDAIWSaqY4UXos5TnzgdOk-BGjvd6sIi8FdMqaL8XUYWVSQ/exec';
 
 const styles = {
   container: {
