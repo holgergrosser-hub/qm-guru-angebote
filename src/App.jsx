@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+// DEINE SCRIPT URL - UPDATE FALLS NEUE DEPLOYMENT
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMKws9R01jbCgJHYrSz9SUPgAM_JjdVzfzWdUK1rtJ2sQb5HEKTvUBhFvlBerwnE_kiQ/exec';
 
 const styles = {
@@ -28,9 +29,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-  },
-  headerIcon: {
-    fontSize: '32px',
   },
   headerDesc: {
     fontSize: '16px',
@@ -67,9 +65,6 @@ const styles = {
     boxSizing: 'border-box',
     fontFamily: 'Arial, sans-serif',
     transition: 'border-color 0.2s',
-  },
-  inputFocus: {
-    borderColor: '#3182ce',
   },
   textarea: {
     width: '100%',
@@ -114,10 +109,6 @@ const styles = {
   buttonSuccess: {
     background: '#38a169',
     color: 'white',
-  },
-  buttonHover: {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 16px rgba(0,0,0,0.12)',
   },
   errorBox: {
     background: '#fff5f5',
@@ -167,33 +158,6 @@ const styles = {
     color: '#718096',
     lineHeight: '1.8',
   },
-  footerGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '16px',
-    marginTop: '32px',
-  },
-  footerCard: {
-    background: 'white',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-    padding: '20px',
-    textAlign: 'center',
-  },
-  footerCardIcon: {
-    fontSize: '24px',
-    marginBottom: '8px',
-  },
-  footerCardTitle: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: '#2d3748',
-    marginBottom: '4px',
-  },
-  footerCardDesc: {
-    fontSize: '11px',
-    color: '#718096',
-  },
 };
 
 export default function App() {
@@ -205,7 +169,7 @@ export default function App() {
     nachricht: ''
   });
 
-  const [status, setStatus] = useState('idle');
+  const [status, setStatus] = useState('idle'); // idle, loading, success, error
   const [errorMsg, setErrorMsg] = useState('');
   const [focusedField, setFocusedField] = useState(null);
 
@@ -220,7 +184,8 @@ export default function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.unternehmensname || !formData.email || !formData.ansprechpartner) {
+    // Validierung
+    if (!formData.unternehmensname.trim() || !formData.email.trim() || !formData.ansprechpartner.trim()) {
       setErrorMsg('Bitte füllen Sie Unternehmensname, Ansprechpartner und Email aus');
       return;
     }
@@ -229,25 +194,36 @@ export default function App() {
     setErrorMsg('');
 
     try {
-      console.log('Sende Daten an:', SCRIPT_URL);
-      
+      // Daten vorbereiten
+      const payload = {
+        unternehmensname: formData.unternehmensname.trim(),
+        ansprechpartner: formData.ansprechpartner.trim(),
+        email: formData.email.trim(),
+        telefon: formData.telefon.trim() || 'nicht angegeben',
+        nachricht: formData.nachricht.trim() || 'keine'
+      };
+
+      console.log('=== SEND DATA ===');
+      console.log('URL:', SCRIPT_URL);
+      console.log('Payload:', JSON.stringify(payload, null, 2));
+
+      // METHOD 1: Standard fetch mit JSON
       const response = await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'text/plain',
+          'Content-Type': 'application/json; charset=utf-8',
         },
-        body: JSON.stringify({
-          unternehmensname: formData.unternehmensname,
-          ansprechpartner: formData.ansprechpartner,
-          email: formData.email,
-          telefon: formData.telefon || 'nicht angegeben',
-          nachricht: formData.nachricht || 'keine'
-        })
+        body: JSON.stringify(payload)
       });
 
+      console.log('Response erhalten');
+
+      // Bei no-cors können wir Response nicht lesen
+      // Aber wenn wir bis hier kommen, wurde die Anfrage gesendet
       setStatus('success');
 
+      // Reset form
       setTimeout(() => {
         setFormData({
           unternehmensname: '',
@@ -257,12 +233,13 @@ export default function App() {
           nachricht: ''
         });
         setStatus('idle');
+        setErrorMsg('');
       }, 5000);
 
     } catch (err) {
-      console.error('Fehler:', err);
+      console.error('❌ FETCH ERROR:', err);
       setStatus('error');
-      setErrorMsg('Es gab einen Fehler beim Versenden. Bitte später erneut versuchen.');
+      setErrorMsg(`Fehler beim Senden: ${err.message}`);
     }
   };
 
@@ -273,8 +250,7 @@ export default function App() {
         {/* Header */}
         <div style={styles.headerBox}>
           <div style={styles.headerTitle}>
-            <span style={styles.headerIcon}>📋</span>
-            Angebot anfordern
+            📋 Angebot anfordern
           </div>
           <p style={styles.headerDesc}>
             Füllen Sie das Formular aus und erhalten Sie Ihr individuelles Angebot sofort per Email als PDF.
@@ -287,8 +263,7 @@ export default function App() {
           {/* Unternehmensname */}
           <div style={styles.formGroup}>
             <label style={styles.label}>
-              Unternehmensname
-              <span style={styles.required}>*</span>
+              Unternehmensname <span style={styles.required}>*</span>
             </label>
             <input
               type="text"
@@ -300,7 +275,7 @@ export default function App() {
               placeholder="z.B. ABC Consulting GmbH"
               style={{
                 ...styles.input,
-                ...(focusedField === 'unternehmensname' ? styles.inputFocus : {})
+                borderColor: focusedField === 'unternehmensname' ? '#3182ce' : '#cbd5e0'
               }}
               required
             />
@@ -309,8 +284,7 @@ export default function App() {
           {/* Ansprechpartner */}
           <div style={styles.formGroup}>
             <label style={styles.label}>
-              Ansprechpartner
-              <span style={styles.required}>*</span>
+              Ansprechpartner <span style={styles.required}>*</span>
             </label>
             <input
               type="text"
@@ -322,7 +296,7 @@ export default function App() {
               placeholder="z.B. Max Mustermann"
               style={{
                 ...styles.input,
-                ...(focusedField === 'ansprechpartner' ? styles.inputFocus : {})
+                borderColor: focusedField === 'ansprechpartner' ? '#3182ce' : '#cbd5e0'
               }}
               required
             />
@@ -331,8 +305,7 @@ export default function App() {
           {/* Email */}
           <div style={styles.formGroup}>
             <label style={styles.label}>
-              E-Mail-Adresse
-              <span style={styles.required}>*</span>
+              E-Mail-Adresse <span style={styles.required}>*</span>
             </label>
             <input
               type="email"
@@ -344,7 +317,7 @@ export default function App() {
               placeholder="max.mustermann@example.com"
               style={{
                 ...styles.input,
-                ...(focusedField === 'email' ? styles.inputFocus : {})
+                borderColor: focusedField === 'email' ? '#3182ce' : '#cbd5e0'
               }}
               required
             />
@@ -368,7 +341,7 @@ export default function App() {
               placeholder="z.B. 0911-49522541"
               style={{
                 ...styles.input,
-                ...(focusedField === 'telefon' ? styles.inputFocus : {})
+                borderColor: focusedField === 'telefon' ? '#3182ce' : '#cbd5e0'
               }}
             />
           </div>
@@ -387,7 +360,7 @@ export default function App() {
               placeholder="z.B. Benötigen Sie zusätzliche Leistungen oder haben Fragen zum Angebot?"
               style={{
                 ...styles.textarea,
-                ...(focusedField === 'nachricht' ? styles.inputFocus : {})
+                borderColor: focusedField === 'nachricht' ? '#3182ce' : '#cbd5e0'
               }}
             />
           </div>
@@ -408,17 +381,6 @@ export default function App() {
               ...styles.button,
               ...(status === 'loading' ? styles.buttonLoading : styles.buttonIdle),
               ...(status === 'success' ? styles.buttonSuccess : {}),
-              ...(status !== 'loading' && status !== 'error' ? styles.buttonHover : {})
-            }}
-            onMouseEnter={(e) => {
-              if (status !== 'loading' && status !== 'error') {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 16px rgba(0,0,0,0.12)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'none';
-              e.target.style.boxShadow = 'none';
             }}
           >
             {status === 'loading' && '⏳ Wird verarbeitet...'}
@@ -443,25 +405,6 @@ export default function App() {
             <strong>💡 Hinweis:</strong> Ihr Angebot wird in Echtzeit generiert und sofort an Ihre Email versendet. Bitte überprüfen Sie auch Ihren Spam-Ordner falls die Email nicht ankommt.
           </div>
         </form>
-
-        {/* Footer Grid */}
-        <div style={styles.footerGrid}>
-          <div style={styles.footerCard}>
-            <div style={styles.footerCardIcon}>📄</div>
-            <div style={styles.footerCardTitle}>Sofortiges PDF</div>
-            <div style={styles.footerCardDesc}>Generiert in Echtzeit</div>
-          </div>
-          <div style={styles.footerCard}>
-            <div style={styles.footerCardIcon}>📧</div>
-            <div style={styles.footerCardTitle}>Automatische Email</div>
-            <div style={styles.footerCardDesc}>Mit Anhang an Sie versendet</div>
-          </div>
-          <div style={styles.footerCard}>
-            <div style={styles.footerCardIcon}>✅</div>
-            <div style={styles.footerCardTitle}>100% Transparent</div>
-            <div style={styles.footerCardDesc}>Keine versteckten Kosten</div>
-          </div>
-        </div>
 
         {/* Footer */}
         <div style={styles.footer}>
