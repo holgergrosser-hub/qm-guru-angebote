@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-// DEINE SCRIPT URL - UPDATE FALLS NEUE DEPLOYMENT
+// DEINE SCRIPT URL
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMKws9R01jbCgJHYrSz9SUPgAM_JjdVzfzWdUK1rtJ2sQb5HEKTvUBhFvlBerwnE_kiQ/exec';
 
 const styles = {
@@ -169,7 +169,7 @@ export default function App() {
     nachricht: ''
   });
 
-  const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [focusedField, setFocusedField] = useState(null);
 
@@ -184,7 +184,6 @@ export default function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validierung
     if (!formData.unternehmensname.trim() || !formData.email.trim() || !formData.ansprechpartner.trim()) {
       setErrorMsg('Bitte füllen Sie Unternehmensname, Ansprechpartner und Email aus');
       return;
@@ -194,36 +193,39 @@ export default function App() {
     setErrorMsg('');
 
     try {
-      // Daten vorbereiten
-      const payload = {
+      console.log('=== SEND DATA (FORM ENCODED) ===');
+      console.log('URL:', SCRIPT_URL);
+
+      // WICHTIG: Form-Encoded statt JSON!
+      const formEncoded = new URLSearchParams();
+      formEncoded.append('unternehmensname', formData.unternehmensname.trim());
+      formEncoded.append('ansprechpartner', formData.ansprechpartner.trim());
+      formEncoded.append('email', formData.email.trim());
+      formEncoded.append('telefon', formData.telefon.trim() || 'nicht angegeben');
+      formEncoded.append('nachricht', formData.nachricht.trim() || 'keine');
+
+      console.log('Form Data:', {
         unternehmensname: formData.unternehmensname.trim(),
         ansprechpartner: formData.ansprechpartner.trim(),
         email: formData.email.trim(),
         telefon: formData.telefon.trim() || 'nicht angegeben',
         nachricht: formData.nachricht.trim() || 'keine'
-      };
+      });
 
-      console.log('=== SEND DATA ===');
-      console.log('URL:', SCRIPT_URL);
-      console.log('Payload:', JSON.stringify(payload, null, 2));
-
-      // METHOD 1: Standard fetch mit JSON
+      // Fetch mit Form Encoding
       const response = await fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         },
-        body: JSON.stringify(payload)
+        body: formEncoded.toString()
       });
 
-      console.log('Response erhalten');
+      console.log('✅ Request gesendet');
 
-      // Bei no-cors können wir Response nicht lesen
-      // Aber wenn wir bis hier kommen, wurde die Anfrage gesendet
       setStatus('success');
 
-      // Reset form
       setTimeout(() => {
         setFormData({
           unternehmensname: '',
@@ -233,13 +235,12 @@ export default function App() {
           nachricht: ''
         });
         setStatus('idle');
-        setErrorMsg('');
       }, 5000);
 
     } catch (err) {
-      console.error('❌ FETCH ERROR:', err);
+      console.error('❌ ERROR:', err);
       setStatus('error');
-      setErrorMsg(`Fehler beim Senden: ${err.message}`);
+      setErrorMsg(`Fehler: ${err.message}`);
     }
   };
 
@@ -357,7 +358,7 @@ export default function App() {
               onChange={handleChange}
               onFocus={() => setFocusedField('nachricht')}
               onBlur={() => setFocusedField(null)}
-              placeholder="z.B. Benötigen Sie zusätzliche Leistungen oder haben Fragen zum Angebot?"
+              placeholder="z.B. Benötigen Sie zusätzliche Leistungen?"
               style={{
                 ...styles.textarea,
                 borderColor: focusedField === 'nachricht' ? '#3182ce' : '#cbd5e0'
@@ -394,7 +395,7 @@ export default function App() {
             <div style={styles.successBox}>
               <div style={styles.successTitle}>✅ Ihr Angebot wurde erfolgreich erstellt!</div>
               <div style={styles.successList}>
-                📧 Eine Email mit dem PDF wird in Kürze zugestellt (überprüfen Sie auch den Spam-Ordner)<br/>
+                📧 Eine Email mit dem PDF wird in Kürze zugestellt<br/>
                 💡 Die Email kommt von: Holger.Grosser@QM-Guru.de
               </div>
             </div>
@@ -402,7 +403,7 @@ export default function App() {
 
           {/* Info Box */}
           <div style={styles.infoBox}>
-            <strong>💡 Hinweis:</strong> Ihr Angebot wird in Echtzeit generiert und sofort an Ihre Email versendet. Bitte überprüfen Sie auch Ihren Spam-Ordner falls die Email nicht ankommt.
+            <strong>💡 Hinweis:</strong> Ihr Angebot wird in Echtzeit generiert und sofort versendet. Überprüfen Sie auch den Spam-Ordner.
           </div>
         </form>
 
