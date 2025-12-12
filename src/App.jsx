@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // DEINE SCRIPT URL
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzE4vYHxrwraYDLAltaFzu7bJEMNCoMu479mI4HYLccYT6WgDH8rDwA8KDka3fOs75j/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxvpK2DRD5w4xRKGo29T3WKWI8ARlyqwOkcFdmBoDZv6ob5GlbLbxfOeTlbGcUQjmz5/exec';
 
 const styles = {
   container: {
